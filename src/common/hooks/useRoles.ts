@@ -3,6 +3,7 @@ import { TokenABIConst } from "@/ethereum/abis/DAObiContract3";
 import { VoteABIConst } from "@/ethereum/abis/DAObiVoteContract";
 import { formatEther, parseBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
+import { DaobiAccountability } from "@/ethereum/abis/DaobiAccountability";
 
 const useRoles = (userAddress: `0x${string}`) => {
   /** Token Contract Roles */
@@ -21,6 +22,11 @@ const useRoles = (userAddress: `0x${string}`) => {
 
   const [chanceAddr, setChanceAddr] = useState("");
   const [isChancellor, setIsChancellor] = useState(false);
+  const [hasGrudge, setHasGrudge] = useState(false);
+  const [accuser, setAccuser] = useState("");
+  const [accusationTracker, setAccusationTracker] = useState("");
+  const [isRingLeader, setIsRingLeader] = useState(false);
+
   useEffect(() => {
     if (!chanceAddrLoading) {
       // check if user is Chancellor
@@ -113,6 +119,7 @@ const useRoles = (userAddress: `0x${string}`) => {
       let serving = false;
       let reclused = false;
       let immolated = false;
+      let grudge = false;
 
       // parse username
       try {
@@ -144,6 +151,7 @@ const useRoles = (userAddress: `0x${string}`) => {
       if (courtName !== userCourtName) setUserCourtName(courtName);
       if (reclused !== isReclused) setIsReclused(reclused);
       if (immolated !== isImmolated) setIsImmolated(immolated);
+      if (grudge !== hasGrudge) setHasGrudge(hasGrudge);
     }
   }, [
     hasVoteToken,
@@ -156,6 +164,35 @@ const useRoles = (userAddress: `0x${string}`) => {
     userVoterStruct,
   ]);
 
+  const {
+    data: hasGrudgeStruct,
+    isError: hasGrudgeStructError,
+    isLoading: hasGrudgeStructLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "grudgeBook",
+    args: [userAddress],
+    staleTime: 10000,
+    watch: true,
+  });
+
+  const {
+    data: accusationTrackerStruct,
+    isError: accusationTrackerError,
+    isLoading: accusationTrackerLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "accusationTracker",
+    args: [userAddress],
+    staleTime: 10000,
+    watch: true,
+  });
   const {
     data: chancellorVoterStruct,
     isError: chanceStructError,
@@ -170,7 +207,20 @@ const useRoles = (userAddress: `0x${string}`) => {
     staleTime: 10000,
     watch: true,
   });
-
+  const {
+    data: isAccuserStruct,
+    isError: isAccuserError,
+    isLoading: isAccuserLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "getAccuser",
+    args: [accusationTracker as `0x${string}`],
+    staleTime: 10000,
+    watch: true,
+  });
   const [canClaim, setCanClaim] = useState(false);
   const [chanceName, setChanceName] = useState("");
   useEffect(() => {
@@ -205,6 +255,14 @@ const useRoles = (userAddress: `0x${string}`) => {
       let bool = canClaimChancellor();
       if (bool !== canClaim) setCanClaim(bool);
     }
+    if (
+      hasGrudgeStruct?.accuser != "0x0000000000000000000000000000000000000000"
+    ) {
+      setHasGrudge(true);
+      setAccuser(hasGrudgeStruct?.accuser);
+    }
+    setAccusationTracker(accusationTrackerStruct);
+    setIsRingLeader(isAccuserStruct === userAddress);
   }, [
     balanceDB,
     canClaim,
@@ -214,6 +272,9 @@ const useRoles = (userAddress: `0x${string}`) => {
     isChancellor,
     hasVoteToken,
     userVoterStruct,
+    hasGrudgeStruct,
+    accusationTrackerStruct,
+    isAccuserStruct,
   ]);
 
   return {
@@ -250,6 +311,10 @@ const useRoles = (userAddress: `0x${string}`) => {
             chanceStructError,
           ]
         : null,
+    hasGrudge,
+    accuser,
+    accusationTracker,
+    isRingLeader,
   };
 };
 

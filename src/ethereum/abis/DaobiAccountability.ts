@@ -787,4 +787,4 @@ export const DaobiAccountability = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;

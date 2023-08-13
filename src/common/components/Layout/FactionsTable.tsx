@@ -57,6 +57,13 @@ function FactionsTable() {
         ) {
           const fromAddr = topics[1];
           users[fromAddr] = [fromAddr, users[fromAddr][1], "0x0"];
+        } else if (
+          topics[0] ===
+          "0x0ce6b15623afb84538dc319bdb30ea0a2cd87994e4969451d2402323afc5b03e"
+        ) {
+          //Burnt (banished or self-immolation)
+          const fromAddr = topics[1];
+          users[fromAddr] = ["null", "null", ""]; //remove from list
         }
       }
       const factionsDict = {};

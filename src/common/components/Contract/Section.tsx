@@ -60,7 +60,13 @@ const Section = ({
       <TxToast toast={toast} setToast={setToast} />
       <div className="flex flex-col justify-between max-w-3xl card">
         <h3 className="p-4 mb-2 text-xl text-center whitespace-pre-line border-b border-color-mode">
-          {title}
+          {title === "Refute The Accusation Made Against You" ? (
+            <h1 className="text-red uppercase text-red-500 font-extrabold">
+              {title}
+            </h1>
+          ) : (
+            title
+          )}
         </h3>
         {userCallableFunctions.map((userFunc) => {
           return (

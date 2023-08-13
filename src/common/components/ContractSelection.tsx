@@ -3,10 +3,13 @@ import Image from "next/image";
 import { useState } from "react";
 import Contract from "./Contract";
 import FactionsTable from "./Layout/FactionsTable";
+import { useAccount } from "wagmi";
+import useRoles from "@/hooks/useRoles";
 
 const ContractSelection = () => {
   const [activeTab, setActiveTab] = useState(1); // contract nav
-
+  const { address } = useAccount();
+  const { hasGrudge, accuser } = useRoles(address);
   return (
     <>
       <div className="w-full flex justify-center items-center px-2 pt-2 mx-auto h-16 md:px-4 md:h-auto md:border-b md:flex-row md:w-full md:max-w-7xl border-color-mode overflow-x-auto">
@@ -49,6 +52,16 @@ const ContractSelection = () => {
           The Imperial Secretariat
         </button>
       </div>
+      {hasGrudge && (
+        <div>
+          <p className="text-center text-2xl font-bold my-6">
+            You have a grudge against{" "}
+            <a className="text-fuchsia-700">{accuser}</a>. They have accused you
+            and are trying to banish you from the DAO. Refute the accusation
+            immediately or face the consequences.
+          </p>
+        </div>
+      )}
       {/* Function Grid */}
       {DYNAMIC_DAOBI_CONTRACTS.map((contract, idx) => {
         if (contract?.ABI) {

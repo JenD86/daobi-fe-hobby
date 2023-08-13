@@ -10,6 +10,7 @@ import MakeClaimModal from "@/components/MakeClaimModal";
 import { DAOBI_CHAIN_ID } from "@/ethereum/wagmiClient";
 import { VOTING_CONTRACT } from "@/ethereum/abis";
 import Section from "@/components/Contract/Section";
+import FactionsTable from "@/components/Layout/FactionsTable";
 
 const Home: NextPage = () => {
   const { address, isConnected } = useAccount();
@@ -43,6 +44,12 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full grow">
+      {!isConnected && (
+        <div className="flex flex-col mx-1 mt-2 space-y-2 min-h-screen md:mx-16 xl:mx-32 2xl:mx-64">
+          {" "}
+          <FactionsTable />
+        </div>
+      )}
       {isConnected && !isPolygon && (
         <div
           id="wrong-network"
