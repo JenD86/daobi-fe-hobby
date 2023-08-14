@@ -3,6 +3,8 @@ import { JsonFragment } from "@ethersproject/abi";
 import { useState } from "react";
 import TxToast, { Toast } from "../TxToast";
 import Function, { UserCallableFunction } from "./Function";
+import useRoles from "@/hooks/useRoles";
+import { useAccount } from "wagmi";
 
 interface Props {
   title: string;
@@ -54,19 +56,57 @@ const Section = ({
       userCallableFunctions.push(userFunc);
     }
   });
+  const { address } = useAccount();
+  const { numSupporters, accusationTracker } = useRoles(address);
 
+  function renderSwitch(title: string) {
+    switch (title) {
+      case "Refute The Accusation Made Against You":
+        return (
+          <h1 className="text-red uppercase text-red-500 font-extrabold">
+            <h1 className="text-red uppercase text-red-500 font-extrabold">
+              {title}
+            </h1>{" "}
+          </h1>
+        );
+      case "Banish a Courtier":
+        return (
+          <>
+            <h1 className="text-red uppercase text-red-500 font-extrabold">
+              {title}
+            </h1>
+            <div className="font-light">
+              You have {numSupporters} out of minimum{" "}
+              {process.env.NEXT_PUBLIC_MIN_SUPPORTERS || 4} needed for the
+              banishment of {accusationTracker}.
+            </div>
+          </>
+        );
+      case "Make Accusation":
+        return (
+          <>
+            {title}
+            {accusationTracker && (
+              <div className="text-sm font-normal">
+                You are currently accusing{" "}
+                <div className="inline text-orange-400">
+                  {accusationTracker}
+                </div>{" "}
+                along with {numSupporters} other courtiers.
+              </div>
+            )}
+          </>
+        );
+      default:
+        return title;
+    }
+  }
   return (
     <>
       <TxToast toast={toast} setToast={setToast} />
       <div className="flex flex-col justify-between max-w-3xl card">
         <h3 className="p-4 mb-2 text-xl text-center whitespace-pre-line border-b border-color-mode">
-          {title === "Refute The Accusation Made Against You" ? (
-            <h1 className="text-red uppercase text-red-500 font-extrabold">
-              {title}
-            </h1>
-          ) : (
-            title
-          )}
+          {renderSwitch(title)}
         </h3>
         {userCallableFunctions.map((userFunc) => {
           return (
