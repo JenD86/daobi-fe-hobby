@@ -7,13 +7,28 @@ import { DaobiAccountability } from "@/ethereum/abis/DaobiAccountability";
 import { BigNumber } from "ethers";
 
 const useRoles = (userAddress: `0x${string}`) => {
+  const [chanceAddr, setChanceAddr] = useState("");
+  const [isChancellor, setIsChancellor] = useState(false);
+  const [hasGrudge, setHasGrudge] = useState(false);
+  const [accuser, setAccuser] = useState("");
+  const [accusationTracker, setAccusationTracker] = useState("");
+  const [isRingLeader, setIsRingLeader] = useState(false);
+  const [numSupporters, setNumSupporters] = useState(0);
+  const [balanceDB, setBalanceDB] = useState(0);
+  const [hasVoteToken, setHasVoteToken] = useState(false);
+  const [isServing, setIsServing] = useState(false);
+  const [isReclused, setIsReclused] = useState(false);
+  const [isImmolated, setIsImmolated] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [userCourtName, setUserCourtName] = useState("");
+  const [canClaim, setCanClaim] = useState(false);
+  const [chanceName, setChanceName] = useState("");
   /** Token Contract Roles */
   const {
     data: chancellorAddr,
     isError: chanceAddrError,
     isLoading: chanceAddrLoading,
   } = useContractRead({
-    enabled: false,
     address:
       process.env.NEXT_PUBLIC_TOKEN_ADDR ??
       "0x5988Bf243ADf1b42a2Ec2e9452D144A90b1FD9A9",
@@ -22,13 +37,115 @@ const useRoles = (userAddress: `0x${string}`) => {
     staleTime: 10000,
   });
 
-  const [chanceAddr, setChanceAddr] = useState("");
-  const [isChancellor, setIsChancellor] = useState(false);
-  const [hasGrudge, setHasGrudge] = useState(false);
-  const [accuser, setAccuser] = useState("");
-  const [accusationTracker, setAccusationTracker] = useState("");
-  const [isRingLeader, setIsRingLeader] = useState(false);
-  const [numSupporters, setNumSupporters] = useState(0);
+  const {
+    data: bigNumberDB,
+    isError: isBalanceDBError,
+    isLoading: isBalanceDBLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_TOKEN_ADDR ??
+      "0x5988Bf243ADf1b42a2Ec2e9452D144A90b1FD9A9",
+    abi: TokenABIConst,
+    functionName: "balanceOf",
+    args: [userAddress],
+    staleTime: 10000,
+  });
+
+  /** Voting Contract Roles */
+  const {
+    data: voteTokenBalance,
+    isError: voteTokenError,
+    isLoading: voteTokenLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_VOTE_ADDR ??
+      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
+    abi: VoteABIConst,
+    functionName: "balanceOf",
+    args: [userAddress],
+    staleTime: 10000,
+  });
+
+  const {
+    data: userVoterStruct,
+    isError: userStructError,
+    isLoading: userStructLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_VOTE_ADDR ??
+      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
+    abi: VoteABIConst,
+    functionName: "voterRegistry",
+    args: [userAddress],
+    staleTime: 10000,
+  });
+
+  const {
+    data: hasGrudgeStruct,
+    isError: hasGrudgeStructError,
+    isLoading: hasGrudgeStructLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "grudgeBook",
+    args: [userAddress],
+    staleTime: 10000,
+  });
+
+  const {
+    data: accusationTrackerStruct,
+    isError: accusationTrackerError,
+    isLoading: accusationTrackerLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "accusationTracker",
+    args: [userAddress],
+    staleTime: 10000,
+  });
+  const {
+    data: chancellorVoterStruct,
+    isError: chanceStructError,
+    isLoading: chanceStructLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_VOTE_ADDR ??
+      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
+    abi: VoteABIConst,
+    functionName: "voterRegistry",
+    args: [chancellorAddr],
+    staleTime: 10000,
+  });
+  const {
+    data: isAccuserStruct,
+    isError: isAccuserError,
+    isLoading: isAccuserLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "getAccuser",
+    args: [accusationTracker as `0x${string}`],
+    staleTime: 10000,
+  });
+  const {
+    data: numSupportersStruct,
+    isError: numSupportersError,
+    isLoading: numSupportersLoading,
+  } = useContractRead({
+    address:
+      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
+      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
+    abi: DaobiAccountability,
+    functionName: "getNumSupporters",
+    args: [accusationTracker as `0x${string}`],
+    staleTime: 10000,
+  });
 
   useEffect(() => {
     if (!chanceAddrLoading) {
@@ -38,88 +155,17 @@ const useRoles = (userAddress: `0x${string}`) => {
 
       if (chancellorAddr !== chanceAddr) setChanceAddr(chancellorAddr);
     }
-  }, [
-    chanceAddr,
-    chanceAddrLoading,
-    chancellorAddr,
-    isChancellor,
-    userAddress,
-  ]);
-
-  const {
-    data: bigNumberDB,
-    isError: isBalanceDBError,
-    isLoading: isBalanceDBLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_TOKEN_ADDR ??
-      "0x5988Bf243ADf1b42a2Ec2e9452D144A90b1FD9A9",
-    abi: TokenABIConst,
-    functionName: "balanceOf",
-    args: [userAddress],
-    staleTime: 10000,
-    watch: true,
-  });
-
-  const [balanceDB, setBalanceDB] = useState(0);
-  useEffect(() => {
     if (!isBalanceDBLoading) {
       // get user's balance of $DB
       let bal = Number(formatEther?.(bigNumberDB ?? 0));
       if (bal !== balanceDB) setBalanceDB(bal);
     }
-  }, [balanceDB, bigNumberDB, isBalanceDBLoading]);
-
-  /** Voting Contract Roles */
-  const {
-    data: voteTokenBalance,
-    isError: voteTokenError,
-    isLoading: voteTokenLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_VOTE_ADDR ??
-      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
-    abi: VoteABIConst,
-    functionName: "balanceOf",
-    args: [userAddress],
-    staleTime: 10000,
-    watch: true,
-  });
-
-  const [hasVoteToken, setHasVoteToken] = useState(false);
-  useEffect(() => {
     if (!voteTokenLoading) {
       // check if user owns voting token
       // if they do, they've verified on twitter already
       let hasToken = voteTokenBalance?.gt(0);
       if (hasToken !== hasVoteToken) setHasVoteToken(hasToken);
     }
-  }, [hasVoteToken, voteTokenBalance, voteTokenLoading]);
-
-  const {
-    data: userVoterStruct,
-    isError: userStructError,
-    isLoading: userStructLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_VOTE_ADDR ??
-      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
-    abi: VoteABIConst,
-    functionName: "voterRegistry",
-    args: [userAddress],
-    staleTime: 10000,
-    watch: true,
-  });
-
-  const [isServing, setIsServing] = useState(false);
-  const [isReclused, setIsReclused] = useState(false);
-  const [isImmolated, setIsImmolated] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [userCourtName, setUserCourtName] = useState("");
-  useEffect(() => {
     if (!userStructLoading) {
       let courtName = "";
       let serving = false;
@@ -157,105 +203,6 @@ const useRoles = (userAddress: `0x${string}`) => {
       if (reclused !== isReclused) setIsReclused(reclused);
       if (immolated !== isImmolated) setIsImmolated(immolated);
     }
-  }, [
-    hasVoteToken,
-    isImmolated,
-    isServing,
-    isReclused,
-    isRegistered,
-    userCourtName,
-    userStructLoading,
-    userVoterStruct,
-  ]);
-
-  const {
-    data: hasGrudgeStruct,
-    isError: hasGrudgeStructError,
-    isLoading: hasGrudgeStructLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
-      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
-    abi: DaobiAccountability,
-    functionName: "grudgeBook",
-    args: [userAddress],
-    staleTime: 10000,
-    watch: true,
-  });
-  useEffect(() => {
-    let grudge = false;
-
-    if (!hasGrudgeStructLoading) {
-      if (grudge !== hasGrudge) setHasGrudge(hasGrudge);
-    }
-  }, [hasGrudge, hasGrudgeStruct, hasGrudgeStructLoading]);
-
-  const {
-    data: accusationTrackerStruct,
-    isError: accusationTrackerError,
-    isLoading: accusationTrackerLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
-      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
-    abi: DaobiAccountability,
-    functionName: "accusationTracker",
-    args: [userAddress],
-    staleTime: 10000,
-    watch: true,
-  });
-  const {
-    data: chancellorVoterStruct,
-    isError: chanceStructError,
-    isLoading: chanceStructLoading,
-  } = useContractRead({
-    enabled: false,
-
-    address:
-      process.env.NEXT_PUBLIC_VOTE_ADDR ??
-      "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
-    abi: VoteABIConst,
-    functionName: "voterRegistry",
-    args: [chancellorAddr],
-    staleTime: 10000,
-    watch: true,
-  });
-  const {
-    data: isAccuserStruct,
-    isError: isAccuserError,
-    isLoading: isAccuserLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
-      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
-    abi: DaobiAccountability,
-    functionName: "getAccuser",
-    args: [accusationTracker as `0x${string}`],
-    staleTime: 10000,
-    watch: true,
-  });
-  const {
-    data: numSupportersStruct,
-    isError: numSupportersError,
-    isLoading: numSupportersLoading,
-  } = useContractRead({
-    enabled: false,
-    address:
-      process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
-      "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
-    abi: DaobiAccountability,
-    functionName: "getNumSupporters",
-    args: [accusationTracker as `0x${string}`],
-    staleTime: 10000,
-    watch: true,
-  });
-
-  const [canClaim, setCanClaim] = useState(false);
-  const [chanceName, setChanceName] = useState("");
-  useEffect(() => {
     const canClaimChancellor = (): boolean => {
       // if already chancellor, can't claim again
       if (isChancellor) return false;
@@ -287,27 +234,52 @@ const useRoles = (userAddress: `0x${string}`) => {
       let bool = canClaimChancellor();
       if (bool !== canClaim) setCanClaim(bool);
     }
-    if (
-      hasGrudgeStruct?.accuser != "0x0000000000000000000000000000000000000000"
-    ) {
-      setHasGrudge(true);
-      setAccuser(hasGrudgeStruct?.accuser);
+    let grudge = false;
+
+    if (!hasGrudgeStructLoading) {
+      if (grudge !== hasGrudge) setHasGrudge(hasGrudge);
     }
+    if (!hasGrudgeStructLoading) {
+      if (
+        hasGrudgeStruct?.accuser != "0x0000000000000000000000000000000000000000"
+      ) {
+        setHasGrudge(true);
+        setAccuser(hasGrudgeStruct?.accuser);
+      }
+    }
+
     setAccusationTracker(accusationTrackerStruct);
     setIsRingLeader(isAccuserStruct === userAddress);
     setNumSupporters(numSupportersStruct?.toNumber());
   }, [
+    chanceAddr,
+    chanceAddrLoading,
+    chancellorAddr,
+    isChancellor,
+    userAddress,
     balanceDB,
+    bigNumberDB,
+    isBalanceDBLoading,
+    hasVoteToken,
+    voteTokenBalance,
+    voteTokenLoading,
+    isImmolated,
+    isServing,
+    isReclused,
+    isRegistered,
+    userCourtName,
+    userStructLoading,
+    userVoterStruct,
     canClaim,
     chanceName,
     chanceStructLoading,
     chancellorVoterStruct,
     isChancellor,
-    hasVoteToken,
-    userVoterStruct,
     hasGrudgeStruct,
     accusationTrackerStruct,
     isAccuserStruct,
+    hasGrudge,
+    hasGrudgeStructLoading,
   ]);
 
   return {
