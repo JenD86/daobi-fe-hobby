@@ -13,6 +13,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: chanceAddrError,
     isLoading: chanceAddrLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_TOKEN_ADDR ??
       "0x5988Bf243ADf1b42a2Ec2e9452D144A90b1FD9A9",
@@ -50,6 +51,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: isBalanceDBError,
     isLoading: isBalanceDBLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_TOKEN_ADDR ??
       "0x5988Bf243ADf1b42a2Ec2e9452D144A90b1FD9A9",
@@ -75,6 +77,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: voteTokenError,
     isLoading: voteTokenLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_VOTE_ADDR ??
       "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
@@ -100,6 +103,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: userStructError,
     isLoading: userStructLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_VOTE_ADDR ??
       "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
@@ -169,6 +173,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: hasGrudgeStructError,
     isLoading: hasGrudgeStructLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
       "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
@@ -191,6 +196,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: accusationTrackerError,
     isLoading: accusationTrackerLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
       "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
@@ -205,6 +211,8 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: chanceStructError,
     isLoading: chanceStructLoading,
   } = useContractRead({
+    enabled: false,
+
     address:
       process.env.NEXT_PUBLIC_VOTE_ADDR ??
       "0xe8A858B29311652F7e2170118FbEaD34d097e88A",
@@ -219,6 +227,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: isAccuserError,
     isLoading: isAccuserLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
       "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
@@ -233,6 +242,7 @@ const useRoles = (userAddress: `0x${string}`) => {
     isError: numSupportersError,
     isLoading: numSupportersLoading,
   } = useContractRead({
+    enabled: false,
     address:
       process.env.NEXT_PUBLIC_BANISHMENT_ADDR ??
       "0x397D5bA2F608A6FE51aD11DA0eA9c0eE09890D4e",
