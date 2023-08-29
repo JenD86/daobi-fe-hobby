@@ -186,6 +186,12 @@ export const ACCOUNTABILITY_CONTRACT: DAOBI_CONTRACT = {
         },
       },
     },
+    selfResetAccusationTracker: {
+      title: "Reset Your Accusation Tracker",
+      methods: {
+        selfResetAccusationTracker: {},
+      },
+    },
   },
 };
 export const DYNAMIC_DAOBI_CONTRACTS: DAOBI_CONTRACT[] = [
