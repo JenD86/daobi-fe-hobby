@@ -218,7 +218,7 @@ const useRoles = (userAddress: `0x${string}`) => {
 
       // userVotes > chanceVotes
       return userVoterStruct?.["votesAccrued"]?.gt(
-        chancellorVoterStruct?.["votesAccrued"]
+        chancellorVoterStruct?.["votesAccrued"],
       );
     };
 
@@ -274,12 +274,12 @@ const useRoles = (userAddress: `0x${string}`) => {
     chanceName,
     chanceStructLoading,
     chancellorVoterStruct,
-    isChancellor,
     hasGrudgeStruct,
     accusationTrackerStruct,
     isAccuserStruct,
     hasGrudge,
     hasGrudgeStructLoading,
+    numSupportersStruct,
   ]);
 
   return {

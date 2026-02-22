@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
-import { auth } from "../../../auth";
+import { auth } from "../../../../auth";
 import { getCsrfToken } from "next-auth/react";
 import { VoteABIConst } from "../../../ethereum/abis/DAObiVoteContract";
 
@@ -33,7 +33,7 @@ import { VoteABIConst } from "../../../ethereum/abis/DAObiVoteContract";
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<{ message?: string; error?: Error | string }>
+  res: NextApiResponse<{ message?: string; error?: Error | string }>,
 ) {
   const {
     query: { address },
@@ -43,8 +43,8 @@ export default async function handler(
 
   // SESSION CONTAINS IDENTIFY INFO
   // DO NOT LOG
-  const session = await auth();
-  const csrfToken = await getCsrfToken({ req });
+  const session = await auth(req, res);
+  const csrfToken = await getCsrfToken();
 
   const uniqueMessage =
     `Signing this message verifies that you have completed linking your Discord account. \nAfter you sign this message, DAObi will approve your wallet address on the Voting contract, and your Discord account will be disconnected. \nNeither your address or Discord information will be saved by DAObi, but we still recommend clearing your cookies after verification is completed. \n` +
@@ -61,7 +61,7 @@ export default async function handler(
       // check auth tokens (CSRF/Session) exists & user isn't trying to forge signatures
       if (!csrfToken || !session || resolvedAddress !== address) {
         console.log(
-          `Unauthorized\naddress:${address}\nresolvedAddress:${resolvedAddress}`
+          `Unauthorized\naddress:${address}\nresolvedAddress:${resolvedAddress}`,
         );
         return res.status(401).json({ error: "Unauthorized" });
       }
@@ -75,7 +75,7 @@ export default async function handler(
           const voteContractWrite = await initiateVoteContractWithSigner();
           const tx: ethers.ContractTransaction = await voteContractWrite.mint(
             address,
-            { gasLimit: 275000, gasPrice }
+            { gasLimit: 275000, gasPrice },
             // { gasLimit: 275000, maxFeePerGas, maxPriorityFeePerGas }
           );
 
@@ -113,7 +113,7 @@ export default async function handler(
 
 const getProvider = async () => {
   const provider = new ethers.providers.JsonRpcProvider(
-    "https://polygon-rpc.com"
+    "https://polygon-rpc.com",
   );
   await provider.ready;
   return provider;
@@ -138,7 +138,7 @@ const initiateVoteContractWithSigner = async () => {
   const voteContract = new ethers.Contract(
     process.env.NEXT_PUBLIC_VOTE_ADDR,
     VoteABIConst,
-    signer
+    signer,
   );
   return voteContract;
 };
