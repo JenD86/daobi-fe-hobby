@@ -1,14 +1,15 @@
-import { createClient, configureChains, chain } from "wagmi";
+import { createClient, configureChains } from "wagmi";
+import { polygon } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
-export const DAOBI_CHAIN_ID = 137;
+export const DAOBI_CHAIN_ID = 137; // Polygon Mainnet
 
 export const { chains, provider, webSocketProvider } = configureChains(
-  [chain.polygon],
+  [polygon],
   [publicProvider()]
 );
 
@@ -27,7 +28,15 @@ export const wagmiClient = createClient({
     new WalletConnectConnector({
       chains,
       options: {
-        qrcode: true,
+        // Get a free projectId at https://cloud.walletconnect.com
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+        showQrModal: true,
+        metadata: {
+          name: "DAObi",
+          description: "DAObi Han Dynasty Court Governance",
+          url: "https://daobi.org",
+          icons: ["https://daobi.org/favicon.ico"],
+        },
       },
     }),
     new InjectedConnector({
